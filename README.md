@@ -36,8 +36,8 @@ app/
         └── values/       strings.xml, colors.xml
 ```
 
-Every drawable is a vector or shape, so the project compiles with no binary assets
-checked in.
+Every drawable is a vector or shape apart from `tv_banner.jpg`, the Fire TV launcher
+banner, so the project needs no other binary assets.
 
 ## Building
 
@@ -141,8 +141,11 @@ The pointer fades after 5 seconds of inactivity and reappears on the next D-pad 
 - **Media keys and cross-origin iframes.** `evaluateJavascript` only reaches the main
   frame, so if a player is embedded in a cross-origin iframe the transport keys cannot
   touch its `<video>` element; that player handles its own keys instead.
-- **Banner as a vector.** Fire TV renders `@drawable/tv_banner` fine, but Amazon's
-  Appstore submission requires a real 1280x720 PNG. Replace it before submitting.
+- **Banner.** `tv_banner.jpg` is 1280x720 (16:9) at 60 KB — four times the 320x180dp
+  the launcher actually draws, so it stays sharp without bloating the APK. Amazon's
+  store listing wants a PNG at the same dimensions, but that asset is uploaded to the
+  console separately and is not bundled here. `tv_banner_old.xml` holds the original
+  generated vector and is unreferenced; git history has it either way.
 - **Ad blocking is host-based.** Substring matching on "ad" would break legitimate
   player assets, so only the listed networks are dropped. Extend at runtime with
   `AdBlocker.block("host.example")`. Both ordinary page requests and service-worker
