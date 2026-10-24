@@ -145,4 +145,7 @@ The pointer fades after 5 seconds of inactivity and reappears on the next D-pad 
   Appstore submission requires a real 1280x720 PNG. Replace it before submitting.
 - **Ad blocking is host-based.** Substring matching on "ad" would break legitimate
   player assets, so only the listed networks are dropped. Extend at runtime with
-  `AdBlocker.block("host.example")`.
+  `AdBlocker.block("host.example")`. Both ordinary page requests and service-worker
+  requests are filtered — the latter bypass `WebViewClient.shouldInterceptRequest`
+  entirely and need `ServiceWorkerControllerCompat`, which old WebViews (Fire OS 5,
+  API 22) do not have, though they have no service workers to filter either.

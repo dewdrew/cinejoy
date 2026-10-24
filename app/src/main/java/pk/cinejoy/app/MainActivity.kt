@@ -37,6 +37,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.webkit.ServiceWorkerClientCompat
+import androidx.webkit.ServiceWorkerControllerCompat
+import androidx.webkit.WebViewFeature
 
 /**
  * Single activity that serves both form factors from one APK.
@@ -109,6 +112,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         configureWebView()
+        configureServiceWorkerAdBlocking()
         setupBackNavigation()
 
         val restored = savedInstanceState != null && webView.restoreState(savedInstanceState) != null
@@ -287,6 +291,45 @@ class MainActivity : AppCompatActivity() {
                 exitFullscreen()
             }
         }
+    }
+
+    /**
+     * Route service-worker traffic through the ad shield too.
+     *
+     * Requests a service worker issues never reach
+     * [WebViewClient.shouldInterceptRequest] — they go through a separate controller —
+     * so without this the blocklist silently misses them. cinejoy.pk registers a
+     * service worker, which makes this the difference between partial and full
+     * coverage.
+     *
+     * The controller is process-global, so this is set once rather than per WebView.
+     */
+    private fun configureServiceWorkerAdBlocking() {
+        // Fire OS 5 (API 22) and other old WebViews have no service-worker support at
+        // all, so there is nothing to intercept. getInstance() throws when the feature
+        // is missing, hence the check first.
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_BASIC_USAGE) ||
+            !WebViewFeature.isFeatureSupported(
+                WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST
+            )
+        ) {
+            return
+        }
+
+        ServiceWorkerControllerCompat.getInstance().setServiceWorkerClient(
+            object : ServiceWorkerClientCompat() {
+                override fun shouldInterceptRequest(
+                    request: WebResourceRequest
+                ): WebResourceResponse? {
+                    val url = request.url?.toString() ?: return null
+                    return if (AdBlocker.isAdDomain(url)) {
+                        AdBlocker.createEmptyResource()
+                    } else {
+                        null
+                    }
+                }
+            }
+        )
     }
 
     /** True when navigation to [url] must be refused. */
