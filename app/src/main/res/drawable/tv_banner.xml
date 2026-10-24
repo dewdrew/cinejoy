@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+
+    <!-- Dark banner background -->
+    <path
+        android:fillColor="#141414"
+        android:pathData="M0,0 L320,0 L320,180 L0,180 Z" />
+
+    <!-- Red accent bar down the left edge -->
+    <path
+        android:fillColor="#E50914"
+        android:pathData="M0,0 L10,0 L10,180 L0,180 Z" />
+
+    <!-- Stylised play emblem: red rounded badge + white triangle -->
+    <path
+        android:fillColor="#E50914"
+        android:pathData="M64,90 a36,36 0 1,0 72,0 a36,36 0 1,0 -72,0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M88,74 L88,106 L114,90 Z" />
+
+    <!-- Wordmark underline accent -->
+    <path
+        android:fillColor="#E50914"
+        android:pathData="M152,112 L268,112 L268,118 L152,118 Z" />
+
+    <!-- Abstract title blocks (keeps the banner readable without a font) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M152,62 L268,62 L268,80 L152,80 Z" />
+    <path
+        android:fillAlpha="0.55"
+        android:fillColor="#FFFFFF"
+        android:pathData="M152,88 L226,88 L226,100 L152,100 Z" />
+</vector>

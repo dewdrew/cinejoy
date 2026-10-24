@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:keepScreenOn="true">
+
+    <!-- Primary WebView hosting https://cinejoy.pk/ -->
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+
+    <!-- Target container for HTML5 <video> fullscreen custom views -->
+    <FrameLayout
+        android:id="@+id/fullscreen_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:visibility="gone" />
+
+    <!-- Thin top loading bar -->
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_gravity="top"
+        android:background="@android:color/transparent"
+        android:indeterminate="false"
+        android:max="100"
+        android:progressTint="#E50914" />
+
+    <!-- Offline / load-failure overlay -->
+    <LinearLayout
+        android:id="@+id/error_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/cinejoy_overlay"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:contentDescription="@string/offline_icon_content_description"
+            android:src="@drawable/ic_offline" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:id="@+id/error_title"
+            android:text="@string/error_title"
+            android:textColor="@color/cinejoy_text_primary"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/error_message"
+            android:textColor="@color/cinejoy_text_secondary"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/retry_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_retry_button"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:minWidth="180dp"
+            android:paddingStart="28dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="28dp"
+            android:paddingBottom="12dp"
+            android:text="@string/retry_button"
+            android:textAllCaps="false"
+            android:textColor="@color/cinejoy_text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Fire TV / Android TV virtual mouse pointer (drawn above everything) -->
+    <ImageView
+        android:id="@+id/cursor_view"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:contentDescription="@string/cursor_content_description"
+        android:elevation="12dp"
+        android:src="@drawable/cursor_pointer"
+        android:visibility="gone" />
+
+</FrameLayout>

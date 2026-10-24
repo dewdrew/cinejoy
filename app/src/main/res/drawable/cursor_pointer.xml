@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Soft dark halo keeps the pointer visible on white page sections -->
+    <path
+        android:fillAlpha="0.35"
+        android:fillColor="#000000"
+        android:pathData="M3.1,1.1 L3.1,20.9 L9.1,15.6 L13.3,22.9 L17.0,20.9 L12.7,14.0 L19.9,14.0 Z" />
+
+    <!-- High-contrast white arrow with the Cinejoy red border -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M4,2 L4,20 L9,15 L13,22 L16,20.5 L12,13.5 L19,13.5 Z"
+        android:strokeColor="#E50914"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.5" />
+</vector>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cinejoy</string>
+
+    <string name="error_title">You\'re offline</string>
+    <string name="error_title_load_failed">Cinejoy didn\'t load</string>
+    <string name="error_message">Connection lost. Check your internet connection.</string>
+    <string name="retry_button">Retry</string>
+
+    <string name="pointer_mode_on">Pointer Mode: ON</string>
+    <string name="pointer_mode_off">D-Pad Mode: ON</string>
+    <string name="press_back_again">Press Back again to exit Cinejoy</string>
+
+    <string name="cursor_content_description">On-screen pointer</string>
+    <string name="offline_icon_content_description">No connection</string>
+</resources>

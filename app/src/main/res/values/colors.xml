@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="cinejoy_red">#E50914</color>
+    <color name="cinejoy_red_dark">#B2070F</color>
+    <color name="cinejoy_black">#FF000000</color>
+    <color name="cinejoy_surface">#FF141414</color>
+    <color name="cinejoy_overlay">#FF0D0D0D</color>
+    <color name="cinejoy_text_primary">#FFFFFFFF</color>
+    <color name="cinejoy_text_secondary">#FFB3B3B3</color>
+</resources>
