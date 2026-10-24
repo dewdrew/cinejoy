@@ -52,12 +52,23 @@ workflow runs on push, or on demand via **Actions → Build Cinejoy APK → Run
 workflow**. Download the finished APK from the run's **Artifacts** section
 (`cinejoy-debug-apk` / `cinejoy-release-apk`).
 
+The runner is pinned to `ubuntu-24.04` rather than `ubuntu-latest`: that label began
+migrating to Ubuntu 26 on 2026-10-19, and the migration broke the third-party Android
+SDK setup action. The workflow now uses the image's own preinstalled SDK instead, with
+no third-party setup action at all.
+
+Verified green in 3m 25s — debug 3.77 MB, release 0.66 MB after minification and
+resource shrinking.
+
 > Initialise the repo **inside this folder**, not in your home directory — the
 > enclosing `C:\Users\andrew.adane` is itself a git repo with no commits, and
 > committing there would stage `.ssh/`, `AppData/` and the rest of your profile.
 
-```bash
-git init && git add . && git commit -m "Cinejoy universal Android + Fire TV app"
+Windows PowerShell 5.1 rejects `&&` as a statement separator, so these are chained
+with `;`, which works in both PowerShell and bash:
+
+```powershell
+git init; git add .; git commit -m "Cinejoy universal Android + Fire TV app"
 ```
 
 ### Route B — Local build
