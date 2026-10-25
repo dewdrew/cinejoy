@@ -124,6 +124,37 @@ adb disconnect 192.168.1.50:5555
 For end users, host the signed APK on your server and sideload it with the
 **Downloader** app rather than ADB.
 
+## Signing
+
+Every build is signed with one fixed key, so a new APK installs over an existing
+one (`adb install -r`, or tapping it on a phone) without an uninstall. Android
+rejects an update whose signature differs from the installed copy with
+`INSTALL_FAILED_UPDATE_INCOMPATIBLE`.
+
+The key never enters the repo. CI reads it from two repository secrets:
+
+| Secret | Contents |
+| :-- | :-- |
+| `CINEJOY_KEYSTORE_BASE64` | The PKCS12 keystore, base64-encoded |
+| `CINEJOY_KEYSTORE_PASSWORD` | Its password (store and key share it) |
+
+A push without them fails at **Restore signing keystore** rather than producing an
+APK that cannot update existing installs. Pull requests from forks never receive
+secrets, so they build with a throwaway key and a warning. Each run's
+**Show signing certificate** step prints the fingerprint, which should be:
+
+```
+SHA256: 2A:0F:D5:D3:1E:01:F3:EF:EE:E0:52:E3:DE:7E:4E:5A:B2:48:1E:86:0D:44:5E:1E:CC:43:44:70:9B:3B:6B:86
+```
+
+For a local signed build, put the keystore at `signing/cinejoy-release.jks`
+(git-ignored) and set `CINEJOY_KEYSTORE_PASSWORD`. Without both, Gradle falls back to
+the local debug key.
+
+Keep a backup of the keystore and its password. Losing either means every installed
+copy must be uninstalled once more. Anyone holding both can ship an APK that
+replaces yours on users' devices.
+
 ## Changing the site address
 
 The address is not baked into the APK. On every launch the app fetches

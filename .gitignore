@@ -11,3 +11,6 @@ captures/
 *.aab
 *.jks
 *.keystore
+
+# Signing key and its secrets - never commit
+signing/
