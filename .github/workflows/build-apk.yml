@@ -34,12 +34,26 @@ jobs:
         env:
           KEYSTORE_BASE64: ${{ secrets.CINEJOY_KEYSTORE_BASE64 }}
         run: |
-          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$CINEJOY_KEYSTORE_PASSWORD" ]; then
+          # Report each secret on its own, with its length, so a missing or truncated
+          # one is identifiable. Lengths reveal nothing usable; values stay masked.
+          missing=""
+          for pair in "CINEJOY_KEYSTORE_BASE64:$KEYSTORE_BASE64" \
+                      "CINEJOY_KEYSTORE_PASSWORD:$CINEJOY_KEYSTORE_PASSWORD"; do
+            name="${pair%%:*}"
+            value="${pair#*:}"
+            if [ -z "$value" ]; then
+              echo "$name: MISSING"
+              missing="$missing $name"
+            else
+              echo "$name: set (${#value} characters)"
+            fi
+          done
+          if [ -n "$missing" ]; then
             if [ "${{ github.event_name }}" = "pull_request" ]; then
               echo "::warning::Signing secrets unavailable; this build uses a throwaway key and cannot update installs."
               exit 0
             fi
-            echo "::error::Set the CINEJOY_KEYSTORE_BASE64 and CINEJOY_KEYSTORE_PASSWORD repository secrets."
+            echo "::error::Repository secret(s) not visible to this workflow:$missing"
             exit 1
           fi
           echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/cinejoy-release.jks"
