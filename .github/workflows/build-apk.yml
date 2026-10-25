@@ -7,6 +7,8 @@ name: Build Cinejoy APK
 on:
   push:
     branches: [ main, master ]
+    paths-ignore:
+      - config.json
   pull_request:
   workflow_dispatch:
 

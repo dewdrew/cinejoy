@@ -28,8 +28,7 @@ data class SiteConfig(
  * Streaming sites change domains often, and usually without a redirect. With the
  * address hardcoded, every sideloaded copy would break until it was rebuilt and
  * reinstalled by hand. The config lives on GitHub because it must survive the very
- * domain it describes going away, and in its own public repo because the app's
- * source repo is private and the app has no GitHub login.
+ * domain it describes going away.
  *
  * Resolution order: the last config that downloaded and validated, then
  * [FALLBACK]. A fresh copy is fetched in the background on every launch.
@@ -37,7 +36,7 @@ data class SiteConfig(
 object RemoteConfig {
 
     const val CONFIG_URL =
-        "https://raw.githubusercontent.com/dewdrew/cinejoy-config/main/config.json"
+        "https://raw.githubusercontent.com/dewdrew/cinejoy/master/config.json"
 
     /** Used until a remote config has ever been fetched, and if one is unusable. */
     val FALLBACK = SiteConfig(
