@@ -79,7 +79,7 @@ Requires a JDK 17 (not 25 — AGP 8.5 targets 17–21) and the Android SDK with
 `local.properties` file:
 
 ```properties
-sdk.dir=C\:\\Users\\andrew.adane\\AppData\\Local\\Android\\Sdk
+sdk.dir=C\:\\Users\\username\\AppData\\Local\\Android\\Sdk
 ```
 
 Then:
