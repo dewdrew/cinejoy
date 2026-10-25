@@ -26,7 +26,7 @@ app/
     ├── java/pk/cinejoy/app/
     │   ├── MainActivity.kt         WebView engine, fullscreen video, remote keys
     │   ├── AdBlocker.kt            Host-based ad / popup / redirect shield
-    │   ├── RemoteConfig.kt         Site address fetched from config.json
+    │   ├── RemoteConfig.kt         Site address fetched from dewdrew/cinejoy-config
     │   └── TvCursorController.kt   D-pad pointer, edge scrolling, synthetic taps
     └── res/
         ├── layout/activity_main.xml
@@ -157,12 +157,17 @@ replaces yours on users' devices.
 
 ## Changing the site address
 
-The address is not baked into the APK. On every launch the app fetches
-[`config.json`](config.json) from this repo:
+The address is not baked into the APK. On every launch the app fetches `config.json`
+from the separate public repo
+[dewdrew/cinejoy-config](https://github.com/dewdrew/cinejoy-config):
 
 ```
-https://raw.githubusercontent.com/dewdrew/cinejoy/master/config.json
+https://raw.githubusercontent.com/dewdrew/cinejoy-config/main/config.json
 ```
+
+It lives outside this repo on purpose. This repo is private, and the app has no
+GitHub login, so a file here would return 404 to every installed copy. The config
+repo must stay public; it holds only site addresses.
 
 ```json
 {
@@ -173,9 +178,9 @@ https://raw.githubusercontent.com/dewdrew/cinejoy/master/config.json
 }
 ```
 
-When the site moves, edit `homeUrl` (and `mirrors`) on GitHub and commit. Every
-installed copy picks it up on its next launch, with no rebuild or reinstall. Editing
-only this file does not trigger the APK build.
+When the site moves, edit `homeUrl` (and `mirrors`) in `cinejoy-config` and commit.
+Every installed copy picks it up on its next launch, with no rebuild or reinstall,
+and since that repo has no workflow, no APK build runs.
 
 How the app uses it:
 
