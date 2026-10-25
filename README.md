@@ -26,6 +26,7 @@ app/
     ├── java/pk/cinejoy/app/
     │   ├── MainActivity.kt         WebView engine, fullscreen video, remote keys
     │   ├── AdBlocker.kt            Host-based ad / popup / redirect shield
+    │   ├── RemoteConfig.kt         Site address fetched from config.json
     │   └── TvCursorController.kt   D-pad pointer, edge scrolling, synthetic taps
     └── res/
         ├── layout/activity_main.xml
@@ -122,6 +123,46 @@ adb disconnect 192.168.1.50:5555
 
 For end users, host the signed APK on your server and sideload it with the
 **Downloader** app rather than ADB.
+
+## Changing the site address
+
+The address is not baked into the APK. On every launch the app fetches
+[`config.json`](config.json) from this repo:
+
+```
+https://raw.githubusercontent.com/dewdrew/cinejoy/master/config.json
+```
+
+```json
+{
+  "schemaVersion": 1,
+  "homeUrl": "https://cinejoy.pk/",
+  "mirrors": ["https://cinejoy.to/"],
+  "firstPartyDomains": ["cinejoy.pk", "cinejoy.to"]
+}
+```
+
+When the site moves, edit `homeUrl` (and `mirrors`) on GitHub and commit. Every
+installed copy picks it up on its next launch, with no rebuild or reinstall. Editing
+only this file does not trigger the APK build.
+
+How the app uses it:
+
+- **Startup never waits on GitHub.** It opens the last address it cached and fetches
+  the fresh file in the background. If the fresh `homeUrl` differs and nothing has
+  loaded yet, it switches straight away; otherwise the change applies on next launch.
+- **Mirror failover.** If the first load fails outright (no DNS, connection
+  refused), the app tries each mirror in order before showing the offline screen.
+  Retry walks the list again.
+- **Fallback.** With GitHub unreachable and nothing cached, the app uses the
+  addresses compiled into `RemoteConfig.FALLBACK`.
+- **Bad edits are ignored.** A file that fails to parse, has the wrong
+  `schemaVersion`, or uses a non-https address is rejected, and the last good copy
+  stays in use. Hosts of `homeUrl` and `mirrors` are always treated as first-party.
+
+Failover only reacts to load *failures*. A dead domain that still answers — a
+parking page or a seizure notice — loads normally, so updating `homeUrl` is what
+moves users off it. GitHub's raw CDN can take about five minutes to serve an edit.
 
 ## Fire TV remote mapping
 

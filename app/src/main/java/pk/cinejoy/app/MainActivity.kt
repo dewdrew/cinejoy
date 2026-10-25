@@ -68,9 +68,19 @@ class MainActivity : AppCompatActivity() {
     /** Last URL the main frame started loading, used to scope error reporting. */
     private var lastMainFrameUrl: String? = null
 
-    companion object {
-        private const val HOME_URL = "https://cinejoy.pk/"
+    /** Current site address and mirrors; see [RemoteConfig]. */
+    private var siteConfig: SiteConfig = RemoteConfig.FALLBACK
 
+    /** Position in [SiteConfig.candidateUrls] that the first load is trying. */
+    private var candidateIndex = 0
+
+    /** True once any page has loaded, after which mirror failover stops. */
+    private var homeLoaded = false
+
+    /** Set when the current main-frame load failed, reset when the next one starts. */
+    private var mainFrameFailed = false
+
+    companion object {
         /** Window in which a second Back press exits, instead of on the first. */
         private const val BACK_EXIT_WINDOW_MS = 2_000L
 
@@ -111,14 +121,59 @@ class MainActivity : AppCompatActivity() {
                 .also { it.initializeForTv() }
         }
 
+        // The allowlist has to be in place before the first request goes out.
+        siteConfig = RemoteConfig.cached(this)
+        applyFirstPartyDomains(siteConfig)
+
         configureWebView()
         configureServiceWorkerAdBlocking()
         setupBackNavigation()
 
         val restored = savedInstanceState != null && webView.restoreState(savedInstanceState) != null
-        if (!restored) {
-            webView.loadUrl(HOME_URL)
+        if (restored) {
+            homeLoaded = true
+        } else {
+            webView.loadUrl(siteConfig.candidateUrls[candidateIndex])
         }
+
+        // Load from the cached address immediately rather than waiting on the
+        // network; a moved site is picked up when the fresh copy arrives.
+        RemoteConfig.refresh(this) { fresh -> onConfigRefreshed(fresh) }
+    }
+
+    private fun applyFirstPartyDomains(config: SiteConfig) {
+        config.firstPartyDomains.forEach { AdBlocker.allow(it) }
+    }
+
+    private fun onConfigRefreshed(fresh: SiteConfig) {
+        if (isFinishing || isDestroyed) return
+
+        val previousHome = siteConfig.homeUrl
+        siteConfig = fresh
+        applyFirstPartyDomains(fresh)
+
+        // Until a page has shown, a newer address beats whatever is still being
+        // tried. Once the user is browsing, the change waits for the next launch.
+        if (!homeLoaded && fresh.homeUrl != previousHome) {
+            candidateIndex = 0
+            webView.loadUrl(fresh.homeUrl)
+        }
+    }
+
+    private fun onMainFrameError() {
+        mainFrameFailed = true
+        if (!homeLoaded && tryNextCandidate()) return
+        showErrorOverlay()
+    }
+
+    /** Move the first load on to the next mirror. False when none are left. */
+    private fun tryNextCandidate(): Boolean {
+        val candidates = siteConfig.candidateUrls
+        if (candidateIndex + 1 >= candidates.size) return false
+        candidateIndex++
+        // Posted so the new load does not start inside the error callback.
+        webView.post { webView.loadUrl(candidates[candidateIndex]) }
+        return true
     }
 
     /**
@@ -216,6 +271,7 @@ class MainActivity : AppCompatActivity() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 lastMainFrameUrl = url
+                mainFrameFailed = false
                 hideErrorOverlay()
                 progressBar.progress = 0
                 progressBar.visibility = View.VISIBLE
@@ -225,6 +281,9 @@ class MainActivity : AppCompatActivity() {
                 super.onPageFinished(view, url)
                 progressBar.visibility = View.GONE
                 CookieManager.getInstance().flush()
+                if (!mainFrameFailed) {
+                    homeLoaded = true
+                }
                 if (isTvDevice) {
                     injectTvFocusStyles()
                 }
@@ -239,7 +298,7 @@ class MainActivity : AppCompatActivity() {
                 // Sub-resource failures are routine on ad-heavy pages and must not
                 // replace a page that rendered fine.
                 if (request?.isForMainFrame == true) {
-                    showErrorOverlay()
+                    onMainFrameError()
                 }
             }
 
@@ -251,7 +310,7 @@ class MainActivity : AppCompatActivity() {
                 failingUrl: String?
             ) {
                 if (failingUrl != null && failingUrl == lastMainFrameUrl) {
-                    showErrorOverlay()
+                    onMainFrameError()
                 }
             }
         }
@@ -537,9 +596,16 @@ class MainActivity : AppCompatActivity() {
         progressBar.progress = 0
         progressBar.visibility = View.VISIBLE
 
+        // Nothing has loaded yet: walk the whole address list again from the top.
+        if (!homeLoaded) {
+            candidateIndex = 0
+            webView.loadUrl(siteConfig.homeUrl)
+            return
+        }
+
         val current = webView.url
         val target = if (current.isNullOrBlank() || current == "about:blank") {
-            lastMainFrameUrl ?: HOME_URL
+            lastMainFrameUrl ?: siteConfig.homeUrl
         } else {
             current
         }
